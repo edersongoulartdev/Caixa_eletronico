@@ -1,44 +1,87 @@
-//definir classe conta bancaria 
+// Definir classe Conta Bancária
+class ContaBancaria {
+    constructor() {
+        this.saldo = 0; // Saldo inicial zero
+    }
 
-class contabancaria {
+    depositar(valor) {
+        if (valor > 0) {
+            this.saldo += valor;
+            return true;
+        }
+        return false;
+    }
 
+    sacar(valor) {
+        if (valor > 0 && this.temSaldoParaSacar(valor)) {
+            this.saldo -= valor;
+            return true;
+        }
+        return false;
+    }
+
+    temSaldoParaSacar(valor) {
+        return valor <= this.saldo;
+    }
 }
-class caixaeletronico {
-    constructor (conta){
+
+// Definir classe CaixaEletronico
+class CaixaEletronico {
+    constructor(conta) {
         this.conta = conta;
     }
 
-    depositar () {
-        //pegar o valor do deposito
-        const valordeposito = parseFloat(document.getElementById("valordeposito").value)
-        //fazer deposito na conta
-        this.conta.depositar(valordeposito);
-        //exibir saldo
-        this.mostrarsaldo(this.conta.saldo);
-    }
-    
-    sacar(){
-        //pegar valor do saque
-        const valorsaque = parseFloat(document.getElementById("valorsaque").value)
-        //fazer o saque na conta
-        if(this.conta.temsaldoprasacar(valordosaque)){
-            this.conta.sacar(valorsaque);
-            this.mostrarsaldo(this.conta.saldo);
+    depositar() {
+        const valorDeposito = parseFloat(document.getElementById("valordeposito").value);
+        
+        if (isNaN(valorDeposito) || valorDeposito <= 0) {
+            this.mostrarMensagem("Valor inválido para depósito");
+            return;
         }
-        else{
-            //mostrar saldo insuficiente
-            this.mostrarsaldo("Insuficiente");
+
+        if (this.conta.depositar(valorDeposito)) {
+            this.mostrarSaldo(this.conta.saldo);
+        } else {
+            this.mostrarMensagem("Falha no depósito");
         }
     }
 
-    mostrarsaldo(saldo){
-        document.getElementById("saldo").textContent = 'Saldo: R$: $(saldo)';
-        document.getElementById("valordeposito").value ='';
-        document.getElementById("valorsaque").value ='';
+    sacar() {
+        const valorSaque = parseFloat(document.getElementById("valorsaque").value);
+        
+        if (isNaN(valorSaque) || valorSaque <= 0) {
+            this.mostrarMensagem("Valor inválido para saque");
+            return;
+        }
+
+        if (this.conta.sacar(valorSaque)) {
+            this.mostrarSaldo(this.conta.saldo);
+        } else {
+            this.mostrarMensagem("Saldo insuficiente");
+        }
     }
 
-    //criar instancias
-    const cont = new contabancaria();
-    const caixaeletronico = new caixaeletronico(conta);
+    mostrarSaldo(saldo) {
+        document.getElementById("saldo").textContent = `Saldo: R$ ${saldo.toFixed(2)}`;
+        this.limparCampos();
+    }
 
+    mostrarMensagem(mensagem) {
+        document.getElementById("saldo").textContent = mensagem;
+    }
+
+    limparCampos() {
+        document.getElementById("valordeposito").value = '';
+        document.getElementById("valorsaque").value = '';
+    }
 }
+
+// Criar instâncias quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', () => {
+    const conta = new ContaBancaria();
+    const caixa = new CaixaEletronico(conta);
+
+    // Conectar botões às funções
+    document.getElementById("btn-depositar").addEventListener('click', () => caixa.depositar());
+    document.getElementById("btn-sacar").addEventListener('click', () => caixa.sacar());
+});
